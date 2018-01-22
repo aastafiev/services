@@ -1,6 +1,7 @@
 aiohttp
-certifi
-nltk
+certifi==2017.11.5
+nltk==3.2.5
+numpy==1.14.0
 pymorphy2
 PyYAML
 schema
