@@ -1,0 +1,10 @@
+aiohttp
+certifi
+nltk
+pymorphy2
+PyYAML
+schema
+wincertstore
+scipy==1.0.0
+xgboost
+scikit-learn

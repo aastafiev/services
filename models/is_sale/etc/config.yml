@@ -1,0 +1,26 @@
+model:
+  file: models/is_sale/data/xgb_20171024.model
+  best_params:
+    max_delta_step: 0
+    eta: 0.01
+    silent: 0
+    objective: binary:logistic
+    eval_metric: auc
+    seed: 39
+    nthread: 4
+    alpha: 15
+    colsample_bytree: 0.9
+    gamma: 0
+    lambda: 1
+    max_depth: 10
+    min_child_weight: 8
+    subsample: 0.8
+  thresholds:
+    high: 0.096210942
+    medium: 0.053209953
+model_data:  # Put hear behavior for columns in input stream
+  model_columns: [return_customer, leads_count, comments, types]
+  output_columns: [client_id]
+  comments_vocab: models/is_sale/data/comments_vocab.json
+  types_vocab: models/is_sale/data/types_vocab.json
+  thesauri: models/is_sale/data/thesauri.json
