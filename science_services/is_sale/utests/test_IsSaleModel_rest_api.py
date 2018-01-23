@@ -4,7 +4,7 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPOk
 from schema import Schema, Use
 
 import settings as st
-from services.is_sale.server import get_app as get_my_app
+from science_services.is_sale.server import get_app as get_my_app
 from utils.utils import ignore_warnings
 
 

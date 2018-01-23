@@ -20,7 +20,7 @@ __all__ = (
     'IsSaleModel',
 )
 
-DEFAULT_PATH_CONF = os.path.join('models', 'is_sale', 'etc', 'config.yml')
+DEFAULT_PATH_CONF = os.path.join('science_models', 'is_sale', 'etc', 'config.yml')
 
 
 class CountVectorizerWrapper(CountVectorizer):

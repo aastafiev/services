@@ -3,8 +3,8 @@
 
 import unittest
 
-from models.is_sale.utests.test_IsSaleModel import TestIsSaleModel
-from services.is_sale.utests.test_IsSaleModel_rest_api import TestIsSaleModelRestAPI
+from science_models.is_sale.utests.test_IsSaleModel import TestIsSaleModel
+from science_services.is_sale.utests.test_IsSaleModel_rest_api import TestIsSaleModelRestAPI
 
 
 def test_suite():

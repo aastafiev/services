@@ -4,13 +4,13 @@ import os
 from schema import SchemaError
 
 import settings as st
-from models.is_sale.model import IsSaleModel
+from science_models.is_sale.model import IsSaleModel
 from utils.utils import ignore_warnings
 
 
 class TestIsSaleModel(unittest.TestCase):
     def setUp(self):
-        self.test_model = IsSaleModel(os.path.join(st.PROJECT_DIR, 'models', 'is_sale', 'etc', 'config.yml'))
+        self.test_model = IsSaleModel(os.path.join(st.PROJECT_DIR, 'science_models', 'is_sale', 'etc', 'config.yml'))
         with open(os.path.join(st.PROJECT_DIR, 'utests', 'data', 'data_for_IsSaleModel.txt'), 'r',
                   encoding='utf-8') as fin:
             self.test_input_good = fin.readline()
