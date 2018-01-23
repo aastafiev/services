@@ -6,23 +6,27 @@ import logging
 import os
 
 from aiohttp import web
+import aiopg.sa
 
 import settings as st
-from data_services.interpolation import is_sale_predict
-from common import error_middleware
-# from science_models.is_sale.model import IsSaleModel
+from common.middlewares import error_middleware
 from utils.utils import load_cfg
 
 __all__ = (
     # 'is_sale_predict',
 )
 
-SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'science_services', 'interpolation', 'etc', 'config.yml'))
+SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'interpolation', 'etc', 'config.yml'))
 DEFAULT_LOG_FORMAT = '[%(levelname)1.1s %(asctime)s %(name)s %(module)s:%(lineno)d] %(message)s'
 
 
-# async def init_model_is_sale(app):
-#     app['model'] = IsSaleModel(app['config_path'])
+async def init_db(app):
+    app['db'] = await aiopg.sa.create_engine(**app['db_conf'], loop=app.loop)
+
+
+async def on_cleanup(app):
+    app['db'].close()
+    await app['db'].wait_closed()
 
 
 def add_routes(app):
@@ -31,12 +35,11 @@ def add_routes(app):
 
 
 def get_app():
-    # app = web.Application(middlewares=[error_middleware, ], loop=loop, logger=logger)
-    # app = web.Application(loop=loop, client_max_size=1024 * 1024 * 50, logger=logger) client_max_size=1024 * 1024 * 50
     app = web.Application(middlewares=[error_middleware], debug=True)
-    # app['config_path'] = os.path.join(st.PROJECT_DIR, SERVICE_CONFIG['service']['model_config'])
-    app.on_startup.append(init_model_is_sale)
-    # app.on_cleanup.append(on_cleanup)
+    app['db_conf'] = SERVICE_CONFIG['db']
+
+    app.on_startup.append(init_db)
+    app.on_cleanup.append(on_cleanup)
     return add_routes(app)
 
 

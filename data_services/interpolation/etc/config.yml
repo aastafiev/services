@@ -8,4 +8,5 @@ service:
   host: localhost
   port: 8083
 other:
-  log_level: info
+  log_level: debug
+  year_lag: -3

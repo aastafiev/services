@@ -1,19 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import asyncio
-import aiopg.sa
-import sqlalchemy as sa
 from datetime import timedelta, datetime
 from statistics import mode
 
 from collections import OrderedDict, defaultdict
 from scipy.interpolate import interp1d
 import numpy as np
-
-import data_services.interpolation.db as db
-
-YEAR_LAG = -3
 
 
 def filter_x_y(x, y):
@@ -32,7 +25,7 @@ def filter_x_y(x, y):
     return x_local, y_local
 
 
-def interpolate(x, y, xnew):
+def interpolate_raw(x, y, xnew):
     f = interp1d(x, y, kind='linear', fill_value='extrapolate')
     ynew = f(xnew)
     ynew[ynew < 0] = 0
@@ -66,7 +59,7 @@ def calc_exp_work_type(value):
     return None
 
 
-async def interpolate_data_gen(get_conn, client_name, vin):
+def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, year_lag: int = -3):
     def date_range(start_date, end_date):
         for n in range(int((end_date - start_date).days) + 1):
             yield start_date + timedelta(days=n)
@@ -86,33 +79,15 @@ async def interpolate_data_gen(get_conn, client_name, vin):
         key = next(reversed(s))
         return key, s[key]
 
-    query_interp_info = sa.select([sa.func.max(db.odometer_interpolated.c.date_service).label('max_interp_date')])\
-        .where(sa.and_(db.odometer.c.client == client_name, db.odometer.c.vin == vin))
-
-    max_interp_date = (await get_conn.scalar(query_interp_info))
-
-    query_client = sa.select([db.odometer.c.client.label('client_name'),
-                              db.odometer.c.vin,
-                              db.odometer.c.model,
-                              db.odometer.c.date_service,
-                              db.odometer.c.odometer]).where(sa.and_(db.odometer.c.client == client_name,
-                                                                     db.odometer.c.vin == vin))\
-                                                      .order_by(db.odometer.c.date_service.asc())
-
-    client_data = OrderedDict()
-    model = []
-    async for row in get_conn.execute(query_client):
-        model.append(row.model)
-        client_data[row.date_service.date().isoformat()] = {'client_name': row.client_name,
-                                                            'vin': row.vin,
-                                                            'model': row.model,
-                                                            'odometer': row.odometer if row.odometer else 0,
-                                                            'presence': 1}
-
+    model = (value['model'] for _, value in client_data.items())
     model_mode = mode(model)
-    min_date_cl = datetime.strptime(first(client_data), '%Y-%m-%d')
+
+    key_cl = first(client_data)
+    client_name = client_data[key_cl]['client_name']
+    vin = client_data[key_cl]['vin']
+    min_date_cl = datetime.strptime(key_cl, '%Y-%m-%d')
     max_date = datetime.strptime(last(client_data)[0], '%Y-%m-%d')
-    min_date = datetime(year=max_date.year + YEAR_LAG, month=1, day=1) if not max_interp_date else max_interp_date
+    min_date = datetime(year=max_date.year + year_lag, month=1, day=1) if not max_interp_date else max_interp_date
     min_date = min_date if min_date >= min_date_cl else min_date_cl
 
     x = tuple()
@@ -130,7 +105,7 @@ async def interpolate_data_gen(get_conn, client_name, vin):
 
     filtered_x_y = filter_x_y(x, y)
     if filtered_x_y[0].size > 1 and filtered_x_y[1].size > 1:
-        y_new_arr = interpolate(filtered_x_y[0], filtered_x_y[1], x_new)
+        y_new_arr = interpolate_raw(filtered_x_y[0], filtered_x_y[1], x_new)
         km_arr = np.append([-1], np.diff(y_new_arr))
 
         for x_key, map_date in date_mapper.items():
@@ -139,40 +114,12 @@ async def interpolate_data_gen(get_conn, client_name, vin):
             exp_work_type = calc_exp_work_type(new_odometer)
             if map_date in client_data:
                 row = client_data[map_date]
-                row['date_service'] = map_date
+                row['date_service'] = datetime.strptime(map_date, '%Y-%m-%d').isoformat()
                 row['odometer'] = new_odometer
                 row['km'] = km
                 row['exp_work_type'] = exp_work_type
                 yield row
             else:
                 yield {'client_name': client_name, 'vin': vin, 'modal': model_mode, 'presence': 0,
-                       'date_service': map_date, 'odometer': new_odometer, 'km': km, 'exp_work_type': exp_work_type}
-
-
-async def get_postgres_engine(loop, db):
-    return await aiopg.sa.create_engine(**db, loop=loop)
-
-
-async def main(loop, db_config):
-    async with await get_postgres_engine(loop, db_config) as pg_get:
-        async with pg_get.acquire() as conn_get:
-            res = [i async for i in interpolate_data_gen(conn_get,
-                                                         client_name='Ababij Vitalij Dmitrievich',
-                                                         vin='VF1VY0C0VUC520845')]
-
-    return res
-
-
-if __name__ == '__main__':
-    db_conf = {'database': 'test',
-               'host': 'localhost',
-               'user': 'postgres',
-               'password': '123',
-               'port': '5432'}
-
-    loop = asyncio.get_event_loop()
-    try:
-        loop.run_until_complete(main(loop, db_conf))
-    finally:
-        loop.run_until_complete(loop.shutdown_asyncgens())
-        loop.close()
+                       'date_service': datetime.strptime(map_date, '%Y-%m-%d').isoformat(), 'odometer': new_odometer,
+                       'km': km, 'exp_work_type': exp_work_type}
