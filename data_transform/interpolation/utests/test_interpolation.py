@@ -10,7 +10,7 @@ from data_transform.interpolation.interpolation import interpolate_gen
 from utils.utils import ignore_warnings
 
 
-class TestIsSaleModel(unittest.TestCase):
+class TestInterpolationModel(unittest.TestCase):
     def setUp(self):
         test_rows_path = os.path.join(st.PROJECT_DIR, 'data_transform', 'interpolation', 'data', 'test_rows.json')
         test_out_path = os.path.join(st.PROJECT_DIR, 'data_transform', 'interpolation', 'data', 'test_out.json')
