@@ -4,7 +4,7 @@ from collections import OrderedDict
 import sqlalchemy as sa
 from aiohttp import web
 
-import data_services.interpolation.db as db
+from .db import tbl_odometer, tbl_odometer_interpolated, tbl_utest_interpolation
 from data_transform.interpolation.interpolation import interpolate_gen
 
 
@@ -22,16 +22,16 @@ async def handle_interpolate(request):
     client_name = client_request['prq']['client_name']
     vin = client_request['prq']['vin']
 
-    query_interp_info = sa.select([sa.func.max(db.odometer_interpolated.c.date_service).label('max_interp_date')]) \
-        .where(sa.and_(db.odometer.c.client == client_name, db.odometer.c.vin == vin))
+    query_interp_info = sa.select([sa.func.max(tbl_odometer_interpolated.c.date_service).label('max_interp_date')]) \
+        .where(sa.and_(tbl_odometer_interpolated.c.client == client_name, tbl_odometer_interpolated.c.vin == vin))
 
-    query_client = sa.select([db.odometer.c.client.label('client_name'),
-                              db.odometer.c.vin,
-                              db.odometer.c.model,
-                              db.odometer.c.date_service,
-                              db.odometer.c.odometer])\
-        .where(sa.and_(db.odometer.c.client == client_name, db.odometer.c.vin == vin))\
-        .order_by(db.odometer.c.date_service.asc())
+    query_client = sa.select([tbl_odometer.c.client.label('client_name'),
+                              tbl_odometer.c.vin,
+                              tbl_odometer.c.model,
+                              tbl_odometer.c.date_service,
+                              tbl_odometer.c.odometer])\
+        .where(sa.and_(tbl_odometer.c.client == client_name, tbl_odometer.c.vin == vin))\
+        .order_by(tbl_odometer.c.date_service.asc())
 
     pg = request.app['db']
     client_data = OrderedDict()
@@ -63,13 +63,13 @@ async def handle_utest_interpolate(request):
 
     max_interp_date = None
 
-    query_client = sa.select([db.utest_interpolation.c.client_name,
-                              db.utest_interpolation.c.vin,
-                              db.utest_interpolation.c.model,
-                              db.utest_interpolation.c.date_service,
-                              db.utest_interpolation.c.odometer])\
-        .where(sa.and_(db.utest_interpolation.c.client_name == client_name, db.utest_interpolation.c.vin == vin))\
-        .order_by(db.utest_interpolation.c.date_service.asc())
+    query_client = sa.select([tbl_utest_interpolation.c.client_name,
+                              tbl_utest_interpolation.c.vin,
+                              tbl_utest_interpolation.c.model,
+                              tbl_utest_interpolation.c.date_service,
+                              tbl_utest_interpolation.c.odometer])\
+        .where(sa.and_(tbl_utest_interpolation.c.client_name == client_name, tbl_utest_interpolation.c.vin == vin))\
+        .order_by(tbl_utest_interpolation.c.date_service.asc())
 
     client_data = OrderedDict()
     async with request.app['db'].acquire() as conn_get:
