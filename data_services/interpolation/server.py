@@ -12,8 +12,12 @@ import settings as st
 from common.middlewares import error_middleware
 from utils.utils import load_cfg
 
+from .handlers import handle_interpolate, handle_utest_interpolate
+
 __all__ = (
-    # 'is_sale_predict',
+    'handle_interpolate',
+    'handle_utest_interpolate',
+    'get_app',
 )
 
 SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'interpolation', 'etc', 'config.yml'))
@@ -30,13 +34,15 @@ async def on_cleanup(app):
 
 
 def add_routes(app):
-    app.router.add_post('/interpolation', is_sale_predict)
+    app.router.add_post('/interpolation', handle_interpolate)
+    app.router.add_post('/utest', handle_utest_interpolate)
     return app
 
 
 def get_app():
     app = web.Application(middlewares=[error_middleware], debug=True)
     app['db_conf'] = SERVICE_CONFIG['db']
+    app['year_lag'] = SERVICE_CONFIG['other']['year_lag']
 
     app.on_startup.append(init_db)
     app.on_cleanup.append(on_cleanup)

@@ -23,7 +23,6 @@ odometer = sa.Table('odometer', metadata,
                     sa.Column('work_code', sa.String(1024))
                     )
 
-
 odometer_interpolated = sa.Table('odometer_interpolated', metadata,
                                  sa.Column('client_name', sa.String(1024)),
                                  sa.Column('vin', sa.String(1024)),
@@ -35,4 +34,10 @@ odometer_interpolated = sa.Table('odometer_interpolated', metadata,
                                  sa.Column('exp_work_type', sa.String(10))
                                  )
 
-
+utest_interpolation = sa.Table('utest_interpolation', metadata,
+                               sa.Column('client_name', sa.String(1024)),
+                               sa.Column('vin', sa.String(1024)),
+                               sa.Column('model', sa.String(1024)),
+                               sa.Column('date_service', sa.DateTime(timezone=True)),
+                               sa.Column('odometer', sa.Integer)
+                               )
