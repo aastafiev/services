@@ -3,13 +3,14 @@
 
 from datetime import timedelta, datetime
 from statistics import mode
+from typing import Tuple, Iterator
 
 from collections import OrderedDict, defaultdict
 from scipy.interpolate import interp1d
 import numpy as np
 
 
-def filter_x_y(x: tuple, y: tuple):
+def filter_x_y(x: tuple, y: tuple) -> Tuple[np.array, np.array]:
     # Check values
     y_local = np.array(y)
     x_local = np.array(x)
@@ -25,11 +26,11 @@ def filter_x_y(x: tuple, y: tuple):
     return x_local, y_local
 
 
-def interpolate_raw(x: np.array, y: np.array, new_x: tuple):
+def interpolate_raw(x: np.array, y: np.array, new_x: tuple) -> np.array:
     f = interp1d(x, y, kind='linear', fill_value='extrapolate')
-    ynew = f(new_x)
-    ynew[ynew < 0] = 0
-    return ynew
+    y_new = f(new_x)
+    y_new[y_new < 0] = 0
+    return y_new
 
 
 def calc_exp_work_type(value: int):
@@ -59,7 +60,7 @@ def calc_exp_work_type(value: int):
     return None
 
 
-def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, year_lag: int = -3):
+def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, year_lag: int = -3) -> Iterator[dict]:
     def date_range(start_date, end_date):
         for n in range(int((end_date - start_date).days) + 1):
             yield start_date + timedelta(days=n)
