@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 
-def filter_x_y(x, y):
+def filter_x_y(x: tuple, y: tuple):
     # Check values
     y_local = np.array(y)
     x_local = np.array(x)
@@ -25,14 +25,14 @@ def filter_x_y(x, y):
     return x_local, y_local
 
 
-def interpolate_raw(x, y, xnew):
+def interpolate_raw(x: np.array, y: np.array, new_x: tuple):
     f = interp1d(x, y, kind='linear', fill_value='extrapolate')
-    ynew = f(xnew)
+    ynew = f(new_x)
     ynew[ynew < 0] = 0
     return ynew
 
 
-def calc_exp_work_type(value):
+def calc_exp_work_type(value: int):
     work_types = {'M-15': (12000, 18000),
                   'M-30': (28000, 32000),
                   'M-40': (39000, 41000),
