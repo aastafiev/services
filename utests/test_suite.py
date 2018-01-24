@@ -5,6 +5,7 @@ import unittest
 
 from science_models.is_sale.utests.test_IsSaleModel import TestIsSaleModel
 from science_services.is_sale.utests.test_IsSaleModel_rest_api import TestIsSaleModelRestAPI
+from data_transform.interpolation.utests.test_interpolation import TestInterpolationModel
 
 
 def test_suite():
@@ -14,6 +15,7 @@ def test_suite():
     suite.addTest(TestIsSaleModelRestAPI('test_service_httpok_json_valid'))
     suite.addTest(TestIsSaleModelRestAPI('test_service_empty_request'))
     suite.addTest(TestIsSaleModelRestAPI('test_service_corrupted_request'))
+    suite.addTest(TestInterpolationModel('test_interpolation'))
     return suite
 
 

@@ -29,8 +29,6 @@ class TestInterpolationModel(unittest.TestCase):
 
     @ignore_warnings
     def test_interpolation(self):
-        # res = [i for i in interpolate_gen(self.client_data)]
-        res = interpolate_gen(self.client_data)
-        for res_row, control_row in zip(res, self.expected_values):
+        for res_row, control_row in zip(interpolate_gen(self.client_data), self.expected_values):
             self.assertIsInstance(res_row, dict, 'The data model returns wrong output type. Expected <list> of <dicts>.')
             self.assertEqual(json.dumps(res_row), json.dumps(control_row), 'Returned data corrupted.')
