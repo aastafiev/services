@@ -15,6 +15,7 @@ from utils.utils import load_cfg
 
 __all__ = (
     'is_sale_predict',
+    'get_app',
 )
 
 SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'science_services', 'is_sale', 'etc', 'config.yml'))

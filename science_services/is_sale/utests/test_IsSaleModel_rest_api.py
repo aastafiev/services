@@ -9,7 +9,6 @@ from utils.utils import ignore_warnings
 
 
 class TestIsSaleModelRestAPI(AioHTTPTestCase):
-
     async def setUpAsync(self):
         with open(os.path.join(st.PROJECT_DIR, 'utests', 'data', 'data_for_IsSaleModel.txt'), 'r',
                   encoding='utf-8') as fin:
