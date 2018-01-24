@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-__all__ = (
-    'is_sale_predict',
-)
 
 
 async def is_sale_predict(request):

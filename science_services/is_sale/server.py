@@ -8,15 +8,11 @@ import os
 from aiohttp import web
 
 import settings as st
-from science_services.is_sale.handlers import is_sale_predict
+from .handlers import is_sale_predict
 from common.middlewares import error_middleware
 from science_models.is_sale.model import IsSaleModel
 from utils.utils import load_cfg
 
-__all__ = (
-    'is_sale_predict',
-    'get_app',
-)
 
 SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'science_services', 'is_sale', 'etc', 'config.yml'))
 DEFAULT_LOG_FORMAT = '[%(levelname)1.1s %(asctime)s %(name)s %(module)s:%(lineno)d] %(message)s'

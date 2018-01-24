@@ -1,20 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# import json
 from collections import OrderedDict
 import sqlalchemy as sa
 from aiohttp import web
-# from aiohttp.web_exceptions import HTTPBadRequest
-
-# from common.middlewares import error_middleware
 
 import data_services.interpolation.db as db
 from data_transform.interpolation.interpolation import interpolate_gen
-
-__all__ = (
-    'handle_interpolate',
-    'handle_utest_interpolate',
-)
 
 
 async def handle_interpolate(request):
