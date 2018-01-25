@@ -29,7 +29,7 @@ class TestInterpolationModelRestAPI(AioHTTPTestCase):
     @unittest_run_loop
     async def test_service_httpok_json_valid(self):
         response = await self.client.post("/utest", json=self.valid_request)
-        self.assertEqual(response.status, HTTPOk.status_code)
+        self.assertEqual(response.status, HTTPOk.status_code, await response.text())
         self.__response_schema.validate(await response.json())
 
     @unittest_run_loop

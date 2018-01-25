@@ -8,7 +8,7 @@ import os
 from aiohttp import web
 
 import settings as st
-from .handlers import is_sale_predict
+from science_services.is_sale.handlers import is_sale_predict
 from common.middlewares import error_middleware
 from science_models.is_sale.model import IsSaleModel
 from utils.utils import load_cfg

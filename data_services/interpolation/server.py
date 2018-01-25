@@ -12,7 +12,7 @@ import settings as st
 from common.middlewares import error_middleware
 from utils.utils import load_cfg
 
-from .handlers import handle_interpolate, handle_utest_interpolate
+from data_services.interpolation.handlers import handle_interpolate, handle_utest_interpolate
 
 
 SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'interpolation', 'etc', 'config.yml'))
@@ -49,7 +49,11 @@ if __name__ == '__main__':
                         format=DEFAULT_LOG_FORMAT)
 
     loop = asyncio.get_event_loop()
-    web.run_app(get_app(),
-                host=SERVICE_CONFIG['service']['host'],
-                port=SERVICE_CONFIG['service']['port'],
-                loop=loop)
+    try:
+        web.run_app(get_app(),
+                    host=SERVICE_CONFIG['service']['host'],
+                    port=SERVICE_CONFIG['service']['port'],
+                    loop=loop)
+    finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.close()

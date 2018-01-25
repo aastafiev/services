@@ -23,14 +23,14 @@ async def handle_interpolate(request):
     vin = client_request['prq']['vin']
 
     query_interp_info = sa.select([sa.func.max(tbl_odometer_interpolated.c.date_service).label('max_interp_date')]) \
-        .where(sa.and_(tbl_odometer_interpolated.c.client == client_name, tbl_odometer_interpolated.c.vin == vin))
+        .where(sa.and_(tbl_odometer_interpolated.c.client_name == client_name, tbl_odometer_interpolated.c.vin == vin))
 
-    query_client = sa.select([tbl_odometer.c.client.label('client_name'),
+    query_client = sa.select([tbl_odometer.c.client_name,
                               tbl_odometer.c.vin,
                               tbl_odometer.c.model,
                               tbl_odometer.c.date_service,
                               tbl_odometer.c.odometer])\
-        .where(sa.and_(tbl_odometer.c.client == client_name, tbl_odometer.c.vin == vin))\
+        .where(sa.and_(tbl_odometer.c.client_name == client_name, tbl_odometer.c.vin == vin))\
         .order_by(tbl_odometer.c.date_service.asc())
 
     pg = request.app['db']
