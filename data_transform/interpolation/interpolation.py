@@ -112,7 +112,7 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
         y_new_arr = interpolate_raw(filtered_x_y[0], filtered_x_y[1], x_new)
         km_arr = np.append([-1], np.diff(y_new_arr))
 
-        for x_key, map_date in date_mapper.items():
+        for x_key, map_date in date_mapper.items():  # TODO: rewrite in multiprocessing
             new_odometer = int(round(y_new_arr[x_key - 1], 0))
             km = int(round(km_arr[x_key - 1], 0)) if km_arr[x_key - 1] != -1 else None
             exp_work_type = calc_exp_work_type(new_odometer)

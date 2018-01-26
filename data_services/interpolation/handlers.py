@@ -9,8 +9,6 @@ from data_transform.interpolation.interpolation import interpolate_gen
 
 
 async def handle_interpolate(request):
-    # request.app.logger.debug('Start interpolation')
-
     client_request = await request.json()
     if 'prq' not in client_request:
         raise web.HTTPBadRequest(reason='No prq key found in json request!')
@@ -19,6 +17,7 @@ async def handle_interpolate(request):
     elif 'vin' not in client_request['prq']:
         raise web.HTTPBadRequest(reason='No vin key found in json request!')
 
+    request.app.logger.debug('Got client: {client_name}, vin: {vin}'.format(**client_request['prq']))
     client_name = client_request['prq']['client_name']
     vin = client_request['prq']['vin']
 
@@ -48,8 +47,6 @@ async def handle_interpolate(request):
 
 
 async def handle_utest_interpolate(request):
-    # request.app.logger.debug('Start interpolation')
-
     client_request = await request.json()
     if 'prq' not in client_request:
         raise web.HTTPBadRequest(reason='No prq key found in json request!')
