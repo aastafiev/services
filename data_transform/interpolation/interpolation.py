@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import timedelta, datetime
+from dateutil.relativedelta import relativedelta
 from statistics import mode
-from typing import Tuple, Iterator
+from typing import Tuple, Iterable
 
 from collections import OrderedDict, defaultdict
 from scipy.interpolate import interp1d
@@ -60,7 +61,7 @@ def calc_exp_work_type(value: int):
     return None
 
 
-def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, year_lag: int = -3) -> Iterator[dict]:
+def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, months_lag: int = -3) -> Iterable[dict]:
     def date_range(start_date, end_date):
         for n in range(int((end_date - start_date).days) + 1):
             yield start_date + timedelta(days=n)
@@ -80,6 +81,9 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
         key = next(reversed(s))
         return key, s[key]
 
+    max_date_window = datetime.strptime(last(client_data)[0], '%Y-%m-%d')
+    min_date_window = max_date_window + relativedelta(months=months_lag) if not max_interp_date else max_interp_date
+
     model = (value['model'] for _, value in client_data.items())
     model_mode = mode(model)
 
@@ -87,19 +91,18 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
     client_name = client_data[key_cl]['client_name']
     vin = client_data[key_cl]['vin']
     min_date_cl = datetime.strptime(key_cl, '%Y-%m-%d')
-    max_date = datetime.strptime(last(client_data)[0], '%Y-%m-%d')
-    min_date = datetime(year=max_date.year + year_lag, month=1, day=1) if not max_interp_date else max_interp_date
-    min_date = min_date if min_date >= min_date_cl else min_date_cl
+    min_date_window = min_date_window if min_date_window >= min_date_cl else min_date_cl
 
     x = tuple()
     x_new = tuple()
     y = tuple()
     date_mapper = defaultdict(str)
 
-    for _x, day in enumerate(date_range(min_date, max_date), 1):
+    for _x, day in enumerate(date_range(min_date_cl, max_date_window), 1):
         x_new += (_x, )
         key = day.date().isoformat()
-        date_mapper[_x] = key
+        if min_date_window <= day <= max_date_window:
+            date_mapper[_x] = key
         if key in client_data:
             x += (_x, )
             y += (client_data[key]['odometer'], )

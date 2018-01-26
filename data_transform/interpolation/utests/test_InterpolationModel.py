@@ -32,16 +32,16 @@ class TestInterpolationModel(unittest.TestCase):
     def check_values(self, source, target):
         self.assertIsInstance(source, dict,
                               'The data model returns wrong output type. Expected <list> of <dicts>.')
-        self.assertEqual(source['model'], target['model'], 'Returned data corrupted in model value.')
-        self.assertEqual(source['presence'], target['presence'], 'Returned data corrupted in presence value.')
         self.assertEqual(source['client_name'], target['client_name'],
                          'Returned data corrupted in client_name value.')
         self.assertEqual(source['vin'], target['vin'], 'Returned data corrupted in vin value.')
-        self.assertEqual(source['exp_work_type'], target['exp_work_type'],
-                         'Returned data corrupted in exp_work_type value.')
+        self.assertEqual(source['model'], target['model'], 'Returned data corrupted in model value.')
         self.assertEqual(datetime.strptime(source['date_service'], '%Y-%m-%dT%H:%M:%S'),
                          datetime.strptime(target['date_service'], '%Y-%m-%dT%H:%M:%S'),
                          'Returned data corrupted in date_service value.')
+        self.assertEqual(source['presence'], target['presence'], 'Returned data corrupted in presence value.')
+        self.assertEqual(source['exp_work_type'], target['exp_work_type'],
+                         'Returned data corrupted in exp_work_type value.')
         self.assertTrue(target['odometer'] - 2 <= source['odometer'] <= target['odometer'] + 2,
                         'Returned data corrupted in odometer value.')
         if source['km']:
@@ -55,16 +55,12 @@ class TestInterpolationModel(unittest.TestCase):
         def check_by_date(v):
             return datetime.strptime(v['date_service'], '%Y-%m-%dT%H:%M:%S') < max_interp_data
 
-        for res_row, control_row in zip(interpolate_gen(self.client_data), self.expected_values):
+        for res_row, control_row in zip(interpolate_gen(self.client_data, months_lag=-24), self.expected_values):
             self.check_values(res_row, control_row)
 
         max_interp_data = datetime.strptime('2017-05-25T00:00:00', '%Y-%m-%dT%H:%M:%S')
         with_max_interp_date = interpolate_gen(self.client_data, max_interp_data)
         new_expected_values = itertools.filterfalse(check_by_date, self.expected_values)
 
-        first_row = True
         for res_row, control_row in zip(with_max_interp_date, new_expected_values):
-            if first_row:
-                control_row['km'] = None
-                first_row = False
             self.check_values(res_row, control_row)

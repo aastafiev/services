@@ -44,7 +44,7 @@ async def handle_interpolate(request):
                                                                 'odometer': row.odometer if row.odometer else 0,
                                                                 'presence': 1}
 
-    return list(interpolate_gen(client_data, max_interp_date, request.app['year_lag']))
+    return list(interpolate_gen(client_data, max_interp_date, request.app['months_lag']))
 
 
 async def handle_utest_interpolate(request):
@@ -80,4 +80,4 @@ async def handle_utest_interpolate(request):
                                                                 'odometer': row.odometer if row.odometer else 0,
                                                                 'presence': 1}
 
-    return list(interpolate_gen(client_data, max_interp_date, request.app['year_lag']))
+    return list(interpolate_gen(client_data, max_interp_date, request.app['months_lag']))

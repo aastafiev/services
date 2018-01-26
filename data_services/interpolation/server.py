@@ -37,7 +37,7 @@ def add_routes(app):
 def get_app():
     app = web.Application(middlewares=[error_middleware], debug=True)
     app['db_conf'] = SERVICE_CONFIG['db']
-    app['year_lag'] = SERVICE_CONFIG['other']['year_lag']
+    app['months_lag'] = SERVICE_CONFIG['other']['months_lag']
 
     app.on_startup.append(init_db)
     app.on_cleanup.append(on_cleanup)
