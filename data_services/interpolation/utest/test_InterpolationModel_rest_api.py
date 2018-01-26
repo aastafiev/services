@@ -6,7 +6,6 @@ from schema import Schema, Or
 
 import settings as st
 from data_services.interpolation.server import get_app as get_my_app
-# from utils.utils import ignore_warnings
 
 
 class TestInterpolationModelRestAPI(AioHTTPTestCase):
@@ -28,9 +27,9 @@ class TestInterpolationModelRestAPI(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_service_httpok_json_valid(self):
-        response = await self.client.post("/utest", json=self.valid_request)
-        self.assertEqual(response.status, HTTPOk.status_code, await response.text())
-        self.__response_schema.validate(await response.json())
+        async with self.client.post("/utest", json=self.valid_request) as r:
+            self.assertEqual(r.status, HTTPOk.status_code, await r.text())
+            self.__response_schema.validate(await r.json())
 
     @unittest_run_loop
     async def test_service_empty_request(self):
@@ -40,23 +39,23 @@ class TestInterpolationModelRestAPI(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_service_corrupted_request(self):
-        response = await self.client.post("/interpolation", json='kdfjghdf')
-        self.assertEqual(response.status, HTTPBadRequest.status_code)
-        out = await response.json()
-        self.assertEqual(out['msg'],
-                         'No prq key found in json request!',
-                         'The service manage HTTPBadRequest in wrong way')
+        async with self.client.post("/interpolation", json='kdfjghdf') as r:
+            self.assertEqual(r.status, HTTPBadRequest.status_code)
+            out = await r.json()
+            self.assertEqual(out['msg'],
+                             'No prq key found in json request!',
+                             'The service manage HTTPBadRequest in wrong way')
 
-        response = await self.client.post("/interpolation", json={'prq': {}})
-        self.assertEqual(response.status, HTTPBadRequest.status_code)
-        out = await response.json()
-        self.assertEqual(out['msg'],
-                         'No client_name key found in json request!',
-                         'The service manage HTTPBadRequest in wrong way')
+        async with self.client.post("/interpolation", json={'prq': {}}) as r:
+            self.assertEqual(r.status, HTTPBadRequest.status_code)
+            out = await r.json()
+            self.assertEqual(out['msg'],
+                             'No client_name key found in json request!',
+                             'The service manage HTTPBadRequest in wrong way')
 
-        response = await self.client.post("/interpolation", json={'prq': {'client_name': None}})
-        self.assertEqual(response.status, HTTPBadRequest.status_code)
-        out = await response.json()
-        self.assertEqual(out['msg'],
-                         'No vin key found in json request!',
-                         'The service manage HTTPBadRequest in wrong way')
+        async with self.client.post("/interpolation", json={'prq': {'client_name': None}}) as r:
+            self.assertEqual(r.status, HTTPBadRequest.status_code)
+            out = await r.json()
+            self.assertEqual(out['msg'],
+                             'No vin key found in json request!',
+                             'The service manage HTTPBadRequest in wrong way')
