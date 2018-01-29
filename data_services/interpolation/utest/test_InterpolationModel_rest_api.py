@@ -23,11 +23,11 @@ class TestInterpolationModelRestAPI(AioHTTPTestCase):
                                           "exp_work_type": Or(None, str)}])
 
     async def get_application(self):
-        return get_my_app()
+        return get_my_app(val_request=True)
 
     @unittest_run_loop
     async def test_service_httpok_json_valid(self):
-        async with self.client.post("/utest", json=self.valid_request) as r:
+        async with self.client.post("/interpolation", json=self.valid_request) as r:
             self.assertEqual(r.status, HTTPOk.status_code, await r.text())
             self.__response_schema.validate(await r.json())
 
@@ -42,20 +42,14 @@ class TestInterpolationModelRestAPI(AioHTTPTestCase):
         async with self.client.post("/interpolation", json='kdfjghdf') as r:
             self.assertEqual(r.status, HTTPBadRequest.status_code)
             out = await r.json()
-            self.assertEqual(out['msg'],
-                             'No prq key found in json request!',
-                             'The service manage HTTPBadRequest in wrong way')
+            self.assertRegex(out['msg'], '^Wrong request!')
 
-        async with self.client.post("/interpolation", json={'prq': {}}) as r:
+        async with self.client.post("/interpolation", json=[{}]) as r:
             self.assertEqual(r.status, HTTPBadRequest.status_code)
             out = await r.json()
-            self.assertEqual(out['msg'],
-                             'No client_name key found in json request!',
-                             'The service manage HTTPBadRequest in wrong way')
+            self.assertRegex(out['msg'], '^Wrong request!')
 
-        async with self.client.post("/interpolation", json={'prq': {'client_name': None}}) as r:
+        async with self.client.post("/interpolation", json=[{'client_name': 'client_1'}]) as r:
             self.assertEqual(r.status, HTTPBadRequest.status_code)
             out = await r.json()
-            self.assertEqual(out['msg'],
-                             'No vin key found in json request!',
-                             'The service manage HTTPBadRequest in wrong way')
+            self.assertRegex(out['msg'], '^Wrong request!')

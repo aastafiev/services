@@ -1,9 +1,3 @@
-db:
-  database: test
-  host: localhost
-  user: postgres
-  password: 123
-  port: 5432
 service:
   host: localhost
   port: 8083

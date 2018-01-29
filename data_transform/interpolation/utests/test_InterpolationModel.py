@@ -4,6 +4,7 @@ import os
 import json
 from collections import OrderedDict
 from datetime import datetime
+from dateutil.parser import parse
 import itertools
 
 import settings as st
@@ -16,13 +17,13 @@ class TestInterpolationModel(unittest.TestCase):
         test_rows_path = os.path.join(st.PROJECT_DIR, 'utests', 'data', 'InterpolationModel_source.json')
         test_out_path = os.path.join(st.PROJECT_DIR, 'utests', 'data', 'InterpolationModel_target.json')
         with open(test_rows_path, 'r') as jin1, open(test_out_path, 'r') as jin2:
-            test_rows = json.load(jin1)['data']
+            test_rows = json.load(jin1)
             self.expected_values = sorted(json.load(jin2),
                                           key=lambda x: datetime.strptime(x['date_service'], '%Y-%m-%dT%H:%M:%S'))
 
         self.client_data = OrderedDict()
-        for row in sorted(test_rows, key=lambda x: datetime.strptime(x['date_service'], '%Y-%m-%dT%H:%M:%S')):
-            key = datetime.strptime(row['date_service'], '%Y-%m-%dT%H:%M:%S').date().isoformat()
+        for row in test_rows:
+            key = parse(row['date_service']).date().isoformat()
             self.client_data[key] = {'client_name': row['client_name'],
                                      'vin': row['vin'],
                                      'model': row['model'],

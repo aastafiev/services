@@ -6,41 +6,47 @@ import logging
 import os
 
 from aiohttp import web
-import aiopg.sa
+from schema import Schema, Or
 
 import settings as st
 from common.middlewares import error_middleware
 from utils.utils import load_cfg
 
-from data_services.interpolation.handlers import handle_interpolate, handle_utest_interpolate
+from data_services.interpolation.handlers import handle_interpolate
 
 
 SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'interpolation', 'etc', 'config.yml'))
 DEFAULT_LOG_FORMAT = '[%(levelname)1.1s %(asctime)s %(name)s %(module)s:%(lineno)d] %(message)s'
 
 
-async def init_db(app):
-    app['db'] = await aiopg.sa.create_engine(**app['db_conf'], loop=app.loop)
+async def on_startup(app):
+    app['months_lag'] = SERVICE_CONFIG['other']['months_lag']
 
 
 async def on_cleanup(app):
-    app['db'].close()
-    await app['db'].wait_closed()
+    pass
 
 
 def add_routes(app):
     app.router.add_post('/interpolation', handle_interpolate)
-    app.router.add_post('/utest', handle_utest_interpolate)
     return app
 
 
-def get_app():
+def get_app(val_request: bool = False):
     app = web.Application(middlewares=[error_middleware], debug=True)
-    app['db_conf'] = SERVICE_CONFIG['db']
-    app['months_lag'] = SERVICE_CONFIG['other']['months_lag']
 
-    app.on_startup.append(init_db)
+    app['validate_request'] = val_request
+    if val_request:
+        app['request_schema'] = Schema([{"client_name": str,
+                                         "vin": str,
+                                         "model": str,
+                                         "date_service": str,
+                                         "max_interp_date": Or(None, str),
+                                         "odometer": Or(None, int)}])
+
+    app.on_startup.append(on_startup)
     app.on_cleanup.append(on_cleanup)
+
     return add_routes(app)
 
 
