@@ -17,10 +17,9 @@ async def handle_interpolate(request):
     except SchemaError as se:
         raise web.HTTPBadRequest(reason='Wrong request! {}'.format(se))
 
-    request.app.logger.debug('Got client: {client_name}, vin: {vin}'.format(**client_request[0]))
-    max_interp_date = client_request[0]['max_interp_date']
+    request.app.logger.debug('Got client: {client_name}, vin: {vin}'.format(**row))
 
-    client_data = OrderedDict()
+    client_data, row = OrderedDict(), None
     for row in client_request:
         client_data[parse(row['date_service']).date().isoformat()] = {'client_name': row['client_name'],
                                                                       'vin': row['vin'],
@@ -28,5 +27,7 @@ async def handle_interpolate(request):
                                                                       'odometer': row['odometer'] if row['odometer']
                                                                       else 0,
                                                                       'presence': 1}
+
+    max_interp_date = parse(row['max_interp_date']) if row['max_interp_date'] else None
 
     return list(interpolate_gen(client_data, max_interp_date, request.app['months_lag']))

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import timedelta, datetime
+from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
-from statistics import mode
+from statistics import mode, StatisticsError
 from typing import Tuple, Iterable
 
 from collections import OrderedDict, defaultdict
@@ -81,16 +82,19 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
         key = next(reversed(s))
         return key, s[key]
 
-    max_date_window = datetime.strptime(last(client_data)[0], '%Y-%m-%d')
+    max_date_window = parse(last(client_data)[0])
     min_date_window = max_date_window + relativedelta(months=months_lag) if not max_interp_date else max_interp_date
 
-    model = (value['model'] for _, value in client_data.items())
-    model_mode = mode(model)
+    model, model_mode = (value['model'] for _, value in client_data.items()), None
+    try:
+        model_mode = mode(model)
+    except StatisticsError as serr:
+        model_mode = None if str(serr) == 'no mode for empty data' else first(model)
 
     key_cl = first(client_data)
     client_name = client_data[key_cl]['client_name']
     vin = client_data[key_cl]['vin']
-    min_date_cl = datetime.strptime(key_cl, '%Y-%m-%d')
+    min_date_cl = parse(key_cl)
     min_date_window = min_date_window if min_date_window >= min_date_cl else min_date_cl
 
     x = tuple()
