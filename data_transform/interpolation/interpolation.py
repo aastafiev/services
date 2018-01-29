@@ -3,6 +3,7 @@
 
 from datetime import timedelta, datetime
 from dateutil.parser import parse
+from dateutil.tz import tzlocal, gettz
 from dateutil.relativedelta import relativedelta
 from statistics import mode, StatisticsError
 from typing import Tuple, Iterable
@@ -82,7 +83,10 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
         key = next(reversed(s))
         return key, s[key]
 
-    max_date_window = parse(last(client_data)[0])
+    local_tz = tzlocal()
+    if max_interp_date and not max_interp_date.tzinfo:
+        max_interp_date = max_interp_date.replace(tzinfo=local_tz)
+    max_date_window = parse(last(client_data)[0]).replace(tzinfo=local_tz)
     min_date_window = max_date_window + relativedelta(months=months_lag) if not max_interp_date else max_interp_date
 
     model, model_mode = (value['model'] for _, value in client_data.items()), None
@@ -94,7 +98,7 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
     key_cl = first(client_data)
     client_name = client_data[key_cl]['client_name']
     vin = client_data[key_cl]['vin']
-    min_date_cl = parse(key_cl)
+    min_date_cl = parse(key_cl).replace(tzinfo=local_tz)
     min_date_window = min_date_window if min_date_window >= min_date_cl else min_date_cl
 
     x = tuple()
