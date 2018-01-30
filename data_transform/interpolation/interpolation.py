@@ -133,9 +133,6 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
                 row['exp_work_type'] = exp_work_type
                 yield row
             else:
-                # yield {'client_name': client_name, 'vin': vin, 'model': model_mode, 'presence': 0,
-                #        'date_service': datetime.strptime(map_date, '%Y-%m-%d').isoformat(), 'odometer': new_odometer,
-                #        'km': km, 'exp_work_type': exp_work_type}
                 yield {'client_name': client_name, 'vin': vin, 'model': model_mode, 'presence': 0,
                        'date_service': parse(map_date).replace(tzinfo=local_tz).astimezone().isoformat(),
                        'odometer': new_odometer, 'km': km, 'exp_work_type': exp_work_type}
