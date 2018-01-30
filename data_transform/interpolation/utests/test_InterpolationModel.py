@@ -5,6 +5,7 @@ import json
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.parser import parse
+from dateutil.tz import tzlocal
 import itertools
 
 import settings as st
@@ -31,14 +32,15 @@ class TestInterpolationModel(unittest.TestCase):
                                      'presence': 1}
 
     def check_values(self, source, target):
+        local_tz = tzlocal()
         self.assertIsInstance(source, dict,
                               'The data model returns wrong output type. Expected <list> of <dicts>.')
         self.assertEqual(source['client_name'], target['client_name'],
                          'Returned data corrupted in client_name value.')
         self.assertEqual(source['vin'], target['vin'], 'Returned data corrupted in vin value.')
         self.assertEqual(source['model'], target['model'], 'Returned data corrupted in model value.')
-        self.assertEqual(datetime.strptime(source['date_service'], '%Y-%m-%dT%H:%M:%S'),
-                         datetime.strptime(target['date_service'], '%Y-%m-%dT%H:%M:%S'),
+        self.assertEqual(parse(source['date_service']),
+                         parse(target['date_service']).replace(tzinfo=local_tz),
                          'Returned data corrupted in date_service value.')
         self.assertEqual(source['presence'], target['presence'], 'Returned data corrupted in presence value.')
         self.assertEqual(source['exp_work_type'], target['exp_work_type'],

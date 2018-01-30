@@ -3,7 +3,7 @@
 
 from datetime import timedelta, datetime
 from dateutil.parser import parse
-from dateutil.tz import tzlocal, gettz
+from dateutil.tz import tzlocal
 from dateutil.relativedelta import relativedelta
 from statistics import mode, StatisticsError
 from typing import Tuple, Iterable
@@ -120,19 +120,22 @@ def interpolate_gen(client_data: OrderedDict, max_interp_date: datetime = None, 
         y_new_arr = interpolate_raw(filtered_x_y[0], filtered_x_y[1], x_new)
         km_arr = np.append([-1], np.diff(y_new_arr))
 
-        for x_key, map_date in date_mapper.items():  # TODO: rewrite in multiprocessing
+        for x_key, map_date in date_mapper.items():
             new_odometer = int(round(y_new_arr[x_key - 1], 0))
             km = int(round(km_arr[x_key - 1], 0)) if km_arr[x_key - 1] != -1 else None
             exp_work_type = calc_exp_work_type(new_odometer)
             if map_date in client_data:
                 row = client_data[map_date]
                 row['model'] = model_mode
-                row['date_service'] = datetime.strptime(map_date, '%Y-%m-%d').isoformat()
+                row['date_service'] = parse(map_date).replace(tzinfo=local_tz).astimezone().isoformat()
                 row['odometer'] = new_odometer
                 row['km'] = km
                 row['exp_work_type'] = exp_work_type
                 yield row
             else:
+                # yield {'client_name': client_name, 'vin': vin, 'model': model_mode, 'presence': 0,
+                #        'date_service': datetime.strptime(map_date, '%Y-%m-%d').isoformat(), 'odometer': new_odometer,
+                #        'km': km, 'exp_work_type': exp_work_type}
                 yield {'client_name': client_name, 'vin': vin, 'model': model_mode, 'presence': 0,
-                       'date_service': datetime.strptime(map_date, '%Y-%m-%d').isoformat(), 'odometer': new_odometer,
-                       'km': km, 'exp_work_type': exp_work_type}
+                       'date_service': parse(map_date).replace(tzinfo=local_tz).astimezone().isoformat(),
+                       'odometer': new_odometer, 'km': km, 'exp_work_type': exp_work_type}
