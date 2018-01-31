@@ -29,4 +29,7 @@ async def handle_interpolate(request):
     request.app.logger.debug('Got client: {client_name}, vin: {vin}'.format(**row))
     max_interp_date = parse(row['max_interp_date']) if row['max_interp_date'] else None
 
-    return list(interpolate_gen(client_data, max_interp_date, request.app['months_lag']))
+    return list(interpolate_gen(client_data,
+                                months_mean_lag=request.app['months_mean_lag'],
+                                max_interp_date=max_interp_date,
+                                months_data_lag=request.app['months_data_lag']))

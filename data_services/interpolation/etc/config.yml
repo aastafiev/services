@@ -3,4 +3,5 @@ service:
   port: 8085
 other:
   log_level: info
-  months_lag: -12
+  months_data_lag: -12
+  months_mean_lag: -3

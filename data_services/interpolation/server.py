@@ -20,7 +20,8 @@ DEFAULT_LOG_FORMAT = '[%(levelname)1.1s %(asctime)s %(name)s %(module)s:%(lineno
 
 
 async def on_startup(app):
-    app['months_lag'] = SERVICE_CONFIG['other']['months_lag']
+    app['months_data_lag'] = SERVICE_CONFIG['other']['months_data_lag']
+    app['months_mean_lag'] = SERVICE_CONFIG['other']['months_mean_lag']
 
 
 async def on_cleanup(app):
