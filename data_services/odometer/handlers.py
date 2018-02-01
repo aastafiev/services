@@ -4,16 +4,20 @@ from collections import OrderedDict
 from aiohttp import web
 from schema import SchemaError
 from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 from data_transform.odometer.interpolation import interpolate_gen
+from data_transform.odometer.generate import generate_gen
+from data_transform.odometer.common.common_func import ClientLastRow
 
 
 async def handle_interpolate(request):
     client_request = await request.json()
 
     try:
-        if request.app['validate_request'] and request.app['request_schema']:
-            request.app['request_schema'].validate(client_request)
+        if request.app['validate_request'] and request.app['request_schema_interp']:
+            request.app['request_schema_interp'].validate(client_request)
     except SchemaError as se:
         raise web.HTTPBadRequest(reason='Wrong request! {}'.format(se))
 
@@ -35,3 +39,28 @@ async def handle_interpolate(request):
                                months_data_lag=request.app['months_data_lag']))
 
     return ret if ret else 'no relevant data or no new visits by client (max_interp_date == max_date_window)'
+
+
+async def handle_generate(request):
+    client_request = await request.json()
+
+    try:
+        if request.app['validate_request'] and request.app['request_schema_generate']:
+            request.app['request_schema_generate'].validate(client_request)
+    except SchemaError as se:
+        raise web.HTTPBadRequest(reason='Wrong request! {}'.format(se))
+
+    client_data = ClientLastRow(
+        client_name=client_request['client_name'],
+        vin=client_request['vin'],
+        model=client_request['model'],
+        date_service=parse(client_request['date_service']),
+        odometer=client_request['odometer'],
+        day_mean_km=client_request['day_mean_km']
+    )
+
+    today = datetime.now().date()
+    date_by = today + relativedelta(day=31) if 1 <= today.day <= 10 else today + relativedelta(months=1, day=31)
+
+    ret = [res for res in generate_gen(client_data, date_by) if res['exp_work_type']]
+    return ret if ret else 'no data with next exp_work_type'

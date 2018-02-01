@@ -12,7 +12,7 @@ import settings as st
 from common.middlewares import error_middleware
 from utils.utils import load_cfg
 
-from data_services.odometer.handlers import handle_interpolate
+from data_services.odometer.handlers import handle_interpolate, handle_generate
 
 
 SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'odometer', 'etc', 'config.yml'))
@@ -29,7 +29,8 @@ async def on_cleanup(app):
 
 
 def add_routes(app):
-    app.router.add_post('/odometer', handle_interpolate)
+    app.router.add_post('/interpolation', handle_interpolate)
+    app.router.add_post('/generate', handle_generate)
     return app
 
 
@@ -38,12 +39,19 @@ def get_app(val_request: bool = False):
 
     app['validate_request'] = val_request
     if val_request:
-        app['request_schema'] = Schema([{"client_name": str,
-                                         "vin": str,
-                                         "model": str,
-                                         "date_service": str,
-                                         "max_interp_date": Or(None, str),
-                                         "odometer": Or(None, int)}])
+        app['request_schema_interp'] = Schema([{"client_name": str,
+                                                "vin": str,
+                                                "model": str,
+                                                "date_service": str,
+                                                "max_interp_date": Or(None, str),
+                                                "odometer": Or(None, int)}])
+        app['request_schema_generate'] = Schema([{"client_name": str,
+                                                  "vin": str,
+                                                  "model": str,
+                                                  "date_service": str,
+                                                  "odometer": int,
+                                                  "day_mean_km": int,
+                                                  "date_by": str}])
 
     app.on_startup.append(on_startup)
     app.on_cleanup.append(on_cleanup)
