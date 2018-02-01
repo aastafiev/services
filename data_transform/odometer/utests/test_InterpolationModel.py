@@ -9,7 +9,7 @@ from dateutil.tz import tzlocal
 import itertools
 
 import settings as st
-from data_transform.interpolation.interpolation import interpolate_gen
+from data_transform.odometer.interpolation import interpolate_gen
 from utils.utils import ignore_warnings
 
 

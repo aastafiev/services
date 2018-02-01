@@ -5,7 +5,7 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPOk
 from schema import Schema, Or
 
 import settings as st
-from data_services.interpolation.server import get_app as get_my_app
+from data_services.odometer.server import get_app as get_my_app
 
 
 class TestInterpolationModelRestAPI(AioHTTPTestCase):
@@ -28,29 +28,29 @@ class TestInterpolationModelRestAPI(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_service_httpok_json_valid(self):
-        async with self.client.post("/interpolation", json=self.valid_request) as r:
+        async with self.client.post("/odometer", json=self.valid_request) as r:
             self.assertEqual(r.status, HTTPOk.status_code, await r.text())
             self.__response_schema.validate(await r.json())
 
     @unittest_run_loop
     async def test_service_empty_request(self):
-        response = await self.client.post("/interpolation")
+        response = await self.client.post("/odometer")
         self.assertEqual(response.status, HTTPBadRequest.status_code)
         self.assertEqual(await response.json(), {'msg': 'Empty json request'})
 
     @unittest_run_loop
     async def test_service_corrupted_request(self):
-        async with self.client.post("/interpolation", json='kdfjghdf') as r:
+        async with self.client.post("/odometer", json='kdfjghdf') as r:
             self.assertEqual(r.status, HTTPBadRequest.status_code)
             out = await r.json()
             self.assertRegex(out['msg'], '^Wrong request!')
 
-        async with self.client.post("/interpolation", json=[{}]) as r:
+        async with self.client.post("/odometer", json=[{}]) as r:
             self.assertEqual(r.status, HTTPBadRequest.status_code)
             out = await r.json()
             self.assertRegex(out['msg'], '^Wrong request!')
 
-        async with self.client.post("/interpolation", json=[{'client_name': 'client_1'}]) as r:
+        async with self.client.post("/odometer", json=[{'client_name': 'client_1'}]) as r:
             self.assertEqual(r.status, HTTPBadRequest.status_code)
             out = await r.json()
             self.assertRegex(out['msg'], '^Wrong request!')

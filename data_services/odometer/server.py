@@ -12,10 +12,10 @@ import settings as st
 from common.middlewares import error_middleware
 from utils.utils import load_cfg
 
-from data_services.interpolation.handlers import handle_interpolate
+from data_services.odometer.handlers import handle_interpolate
 
 
-SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'interpolation', 'etc', 'config.yml'))
+SERVICE_CONFIG = load_cfg(os.path.join(st.PROJECT_DIR, 'data_services', 'odometer', 'etc', 'config.yml'))
 DEFAULT_LOG_FORMAT = '[%(levelname)1.1s %(asctime)s %(name)s %(module)s:%(lineno)d] %(message)s'
 
 
@@ -29,7 +29,7 @@ async def on_cleanup(app):
 
 
 def add_routes(app):
-    app.router.add_post('/interpolation', handle_interpolate)
+    app.router.add_post('/odometer', handle_interpolate)
     return app
 
 
