@@ -7,6 +7,7 @@ from science_models.is_sale.utests.test_IsSaleModel import TestIsSaleModel
 from science_services.is_sale.utests.test_IsSaleModel_rest_api import TestIsSaleModelRestAPI
 from data_transform.odometer.utests.test_InterpolationModel import TestInterpolationModel
 from data_services.odometer.utest.test_InterpolationModel_rest_api import TestInterpolationModelRestAPI
+from data_transform.odometer.utests.test_GenerateModel import TestGenerateModel
 
 
 def test_suite():
@@ -20,6 +21,7 @@ def test_suite():
     suite.addTest(TestInterpolationModelRestAPI('test_service_httpok_json_valid'))
     suite.addTest(TestInterpolationModelRestAPI('test_service_empty_request'))
     suite.addTest(TestInterpolationModelRestAPI('test_service_corrupted_request'))
+    suite.addTest(TestGenerateModel('test_generate'))
     return suite
 
 

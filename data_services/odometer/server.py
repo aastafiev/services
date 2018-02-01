@@ -50,8 +50,7 @@ def get_app(val_request: bool = False):
                                                   "model": str,
                                                   "date_service": str,
                                                   "odometer": int,
-                                                  "day_mean_km": int,
-                                                  "date_by": str}])
+                                                  "day_mean_km": int}])
 
     app.on_startup.append(on_startup)
     app.on_cleanup.append(on_cleanup)

@@ -4,8 +4,6 @@ from collections import OrderedDict
 from aiohttp import web
 from schema import SchemaError
 from dateutil.parser import parse
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
 
 from data_transform.odometer.interpolation import interpolate_gen
 from data_transform.odometer.generate import generate_gen
@@ -59,8 +57,5 @@ async def handle_generate(request):
         day_mean_km=client_request['day_mean_km']
     )
 
-    today = datetime.now().date()
-    date_by = today + relativedelta(day=31) if 1 <= today.day <= 10 else today + relativedelta(months=1, day=31)
-
-    ret = [res for res in generate_gen(client_data, date_by) if res['exp_work_type']]
+    ret = [res for res in generate_gen(client_data) if res['exp_work_type']]
     return ret if ret else 'no data with next exp_work_type'
