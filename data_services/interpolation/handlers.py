@@ -34,4 +34,4 @@ async def handle_interpolate(request):
                                max_interp_date=max_interp_date,
                                months_data_lag=request.app['months_data_lag']))
 
-    return ret if ret else None
+    return ret if ret else 'no relevant data or no new visits by client (max_interp_date == max_date_window)'
