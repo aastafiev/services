@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
 
-from data_transform.odometer.common.common_func import date_range, ClientLastRow, calc_exp_work_type
+from data_transform.odometer.common.common_func import date_range, ClientLastRow, calc_exp_work_type, to_java_date_str
 
 
 def generate_gen(client_last_row: ClientLastRow, date_from: datetime = None) -> Iterable[dict]:
@@ -26,5 +26,5 @@ def generate_gen(client_last_row: ClientLastRow, date_from: datetime = None) -> 
         exp_work_type = calc_exp_work_type(new_odometer)
         if day >= date_from and exp_work_type:
             yield {'client_name': client_last_row.client_name, 'vin': client_last_row.vin,
-                   'model': client_last_row.model, 'date_service': day,
+                   'model': client_last_row.model, 'date_service': to_java_date_str(day),
                    'odometer': new_odometer, 'exp_work_type': calc_exp_work_type(new_odometer)}

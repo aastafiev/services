@@ -57,5 +57,7 @@ async def handle_generate(request):
         day_mean_km=client_request['day_mean_km']
     )
 
-    ret = [res for res in generate_gen(client_data, parse(client_request['date_from'])) if res['exp_work_type']]
+    ret = [res for res in generate_gen(client_data,
+                                       parse(client_request['date_from']) if client_request['date_from'] else None)
+           if res['exp_work_type']]
     return ret if ret else 'no data with next exp_work_type'

@@ -5,6 +5,10 @@ import numpy as np
 from typing import Tuple, NamedTuple
 
 
+def to_java_date_str(date: datetime) -> str:
+    return "{}.{:03.0f}".format(date.strftime('%Y/%m/%d %H:%M:%S'), date.microsecond / 1000)
+
+
 def calc_exp_work_type(value: int):
     work_types = {'M-15': (12000, 18000),
                   'M-30': (28000, 32000),
